@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -53,7 +55,7 @@ func GetClienteByID(id string) (*Cliente, error) {
 	defer stmt.Close()
 
 	var cliente Cliente
-	err = stmt.QueryRow(id).Scan(&cliente.Saldo, &cliente.Limite)
+	err = stmt.QueryRow(id).Scan(&cliente.Id, &cliente.Saldo, &cliente.Limite)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
