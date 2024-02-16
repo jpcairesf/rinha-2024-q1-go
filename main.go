@@ -21,11 +21,3 @@ func main() {
 
 	http.ListenAndServe(":8080", mux)
 }
-
-// func handleGet(w http.ResponseWriter, r *http.Request) {
-// 	// Handle GET request logic here
-// }
-
-// func handlePost(w http.ResponseWriter, r *http.Request) {
-// 	// Handle POST request logic here
-// }

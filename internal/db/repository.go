@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -57,7 +58,7 @@ func GetClienteByID(id string) (*Cliente, error) {
 	var cliente Cliente
 	err = stmt.QueryRow(id).Scan(&cliente.Id, &cliente.Saldo, &cliente.Limite)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		tx.Rollback()
