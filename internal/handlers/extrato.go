@@ -30,7 +30,17 @@ func GetExtrato(w http.ResponseWriter, r *http.Request) {
 	db.TestConnection()
 
 	id := r.PathValue("id")
-	cliente, err := db.GetClienteByID(id)
+	cliente, err := db.ExistsClienteById(id)
+	if cliente == nil {
+		http.Error(w, "Cliente não encontrado", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	transacoes, err := db.GetTop10TransacaoOrderByRealizadaEm(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,20 +52,16 @@ func GetExtrato(w http.ResponseWriter, r *http.Request) {
 			DataExtrato: time.Now(),
 			Limite:      cliente.Limite,
 		},
-		UltimasTransacoes: []ExtratoTransacaoResponse{
-			{
-				Valor:       100,
-				Tipo:        "credito",
-				Descricao:   "Depósito",
-				RealizadaEm: time.Now(),
-			},
-			{
-				Valor:       100,
-				Tipo:        "debito",
-				Descricao:   "Saque",
-				RealizadaEm: time.Now(),
-			},
-		},
+		UltimasTransacoes: []ExtratoTransacaoResponse{},
+	}
+	for _, transacao := range transacoes {
+		response.UltimasTransacoes = append(response.UltimasTransacoes,
+			ExtratoTransacaoResponse{
+				Valor:       transacao.Valor,
+				Tipo:        transacao.Tipo,
+				Descricao:   transacao.Descricao,
+				RealizadaEm: transacao.RealizadaEm,
+			})
 	}
 
 	err = json.NewEncoder(w).Encode(response)
@@ -63,5 +69,4 @@ func GetExtrato(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 }
