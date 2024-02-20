@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	controllers2 "github.com/jpcairesf/rinha-2024-q1-go/controllers"
+	"github.com/jpcairesf/rinha-2024-q1-go/internal"
 )
 
 func main() {
 	router := gin.Default()
-	fmt.Println("Rinha is now running...")
+	fmt.Println("Rinha is ready to Go")
 
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.Writer.Write([]byte("Rinha is running..."))
@@ -16,8 +16,8 @@ func main() {
 
 	clientes := router.Group("/clientes/:id")
 	{
-		clientes.GET("/extrato", controllers2.GetExtrato)
-		clientes.POST("/transacoes", controllers2.PostTransacao)
+		clientes.GET("/extrato", internal.GetExtrato)
+		clientes.POST("/transacoes", internal.PostTransacao)
 	}
 
 	router.Run("8080")

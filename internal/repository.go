@@ -1,8 +1,10 @@
-package models
+package internal
 
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/jpcairesf/rinha-2024-q1-go/internal/domain"
 	"log"
 )
 
@@ -21,9 +23,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("DB is healthy as fuck")
 }
 
-func ExistsClienteById(id string) (*Cliente, error) {
+func ExistsClienteById(id string) (*domain.Cliente, error) {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -47,7 +50,7 @@ func ExistsClienteById(id string) (*Cliente, error) {
 	}
 	defer stmt.Close()
 
-	var cliente Cliente
+	var cliente domain.Cliente
 	err = stmt.QueryRow(id).Scan(&cliente.Id, &cliente.Saldo, &cliente.Limite)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -118,7 +121,7 @@ func CreateTransacao(id string, saldo int64, valor int64, tipo string, descricao
 	return nil
 }
 
-func GetTop10TransacaoOrderByRealizadaEm(id string) ([]Transacao, error) {
+func GetTop10TransacaoOrderByRealizadaEm(id string) ([]domain.Transacao, error) {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -147,10 +150,10 @@ func GetTop10TransacaoOrderByRealizadaEm(id string) ([]Transacao, error) {
 	}
 	defer stmt.Close()
 
-	var transacoes []Transacao
+	var transacoes []domain.Transacao
 	rows, err := stmt.Query(id)
 	for rows.Next() {
-		var transacao Transacao
+		var transacao domain.Transacao
 		if err := rows.Scan(&transacao.Id, &transacao.ClienteId,
 			&transacao.Valor, &transacao.Tipo, &transacao.Descricao); err != nil {
 			tx.Rollback()
