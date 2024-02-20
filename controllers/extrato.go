@@ -1,11 +1,11 @@
-package handlers
+package controllers
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"github.com/jpcairesf/rinha-2024-q1-go/models"
 	"net/http"
 	"time"
-
-	"github.com/jpcairesf/rinha-2024-q1-go/internal/db"
 )
 
 type ExtratoResponse struct {
@@ -26,23 +26,21 @@ type ExtratoTransacaoResponse struct {
 	RealizadaEm time.Time `json:"realizada_em"`
 }
 
-func GetExtrato(w http.ResponseWriter, r *http.Request) {
-	db.TestConnection()
-
-	id := r.PathValue("id")
-	cliente, err := db.ExistsClienteById(id)
+func GetExtrato(c *gin.Context) {
+	id := c.Param("id")
+	cliente, err := models.ExistsClienteById(id)
 	if cliente == nil {
-		http.Error(w, "Cliente não encontrado", http.StatusNotFound)
+		http.Error(c.Writer, "Cliente não encontrado", http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	transacoes, err := db.GetTop10TransacaoOrderByRealizadaEm(id)
+	transacoes, err := models.GetTop10TransacaoOrderByRealizadaEm(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -64,9 +62,9 @@ func GetExtrato(w http.ResponseWriter, r *http.Request) {
 			})
 	}
 
-	err = json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(c.Writer).Encode(response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

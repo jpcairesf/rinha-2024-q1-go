@@ -1,13 +1,9 @@
-package db
+package models
 
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
-	"time"
-
-	_ "github.com/lib/pq"
 )
 
 const (
@@ -19,49 +15,6 @@ const (
 )
 
 var db *sql.DB
-
-type Cliente struct {
-	Id     string `json:"id"`
-	Saldo  int64  `json:"saldo"`
-	Limite int64  `json:"limite"`
-}
-
-type Transacao struct {
-	Id          string    `json:"id"`
-	ClienteId   string    `json:"cliente_id"`
-	Valor       int64     `json:"valor"`
-	Tipo        string    `json:"tipo"`
-	Descricao   string    `json:"descricao"`
-	RealizadaEm time.Time `json:"realizada_em"`
-}
-
-func init() {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	var err error
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func executeTransaction() (*sql.Tx, error) {
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer func() {
-		// Handling transaction rollback error
-		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
-			log.Printf("Panic: %v", err)
-		}
-		// Log the panic, but allow it to propagate
-		if r := recover(); r != nil {
-			log.Printf("Panic: %v", r)
-		}
-	}()
-	return tx, err
-}
 
 func TestConnection() {
 	err := db.Ping()
@@ -159,9 +112,7 @@ func CreateTransacao(id string, saldo int64, valor int64, tipo string, descricao
 
 	err = tx.Commit()
 	if err != nil {
-		if err != nil {
-			log.Printf("Panic commiting the transaction: %v", err)
-		}
+		log.Printf("Panic commiting the transaction: %v", err)
 	}
 
 	return nil
