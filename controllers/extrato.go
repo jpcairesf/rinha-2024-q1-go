@@ -26,21 +26,21 @@ type ExtratoTransacaoResponse struct {
 	RealizadaEm time.Time `json:"realizada_em"`
 }
 
-func GetExtrato(c *gin.Context) {
-	id := c.Param("id")
+func GetExtrato(ctx *gin.Context) {
+	id := ctx.Param("id")
 	cliente, err := models.ExistsClienteById(id)
 	if cliente == nil {
-		http.Error(c.Writer, "Cliente não encontrado", http.StatusNotFound)
+		http.Error(ctx.Writer, "Cliente não encontrado", http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	transacoes, err := models.GetTop10TransacaoOrderByRealizadaEm(id)
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -62,9 +62,9 @@ func GetExtrato(c *gin.Context) {
 			})
 	}
 
-	err = json.NewEncoder(c.Writer).Encode(response)
+	err = json.NewEncoder(ctx.Writer).Encode(response)
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

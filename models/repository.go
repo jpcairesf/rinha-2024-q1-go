@@ -16,7 +16,7 @@ const (
 
 var db *sql.DB
 
-func TestConnection() {
+func init() {
 	err := db.Ping()
 	if err != nil {
 		panic(err)

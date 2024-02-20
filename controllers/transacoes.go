@@ -18,22 +18,22 @@ type TransacaoResponse struct {
 	Limite int64 `json:"limite"`
 }
 
-func PostTransacao(c *gin.Context) {
+func PostTransacao(ctx *gin.Context) {
 	var request TransacaoRequest
-	err := json.NewDecoder(c.Request.Body).Decode(&request)
+	err := json.NewDecoder(ctx.Request.Body).Decode(&request)
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusUnprocessableEntity)
+		http.Error(ctx.Writer, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 
-	id := c.Param("id")
+	id := ctx.Param("id")
 	cliente, err := models.ExistsClienteById(id)
 	if cliente == nil {
-		http.Error(c.Writer, "Cliente não encontrado", http.StatusNotFound)
+		http.Error(ctx.Writer, "Cliente não encontrado", http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -44,7 +44,7 @@ func PostTransacao(c *gin.Context) {
 
 		limiteIndisponivel := cliente.Saldo < -cliente.Limite
 		if limiteIndisponivel {
-			http.Error(c.Writer, err.Error(), http.StatusUnprocessableEntity)
+			http.Error(ctx.Writer, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
 	}
@@ -56,9 +56,9 @@ func PostTransacao(c *gin.Context) {
 		Limite: cliente.Limite,
 	}
 
-	err = json.NewEncoder(c.Writer).Encode(response)
+	err = json.NewEncoder(ctx.Writer).Encode(response)
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
