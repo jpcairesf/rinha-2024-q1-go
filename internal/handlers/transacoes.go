@@ -1,8 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"github.com/jackc/pgx/v5"
+	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/jpcairesf/rinha-2024-q1-go/internal/db"
 )
@@ -26,35 +32,29 @@ func PostTransacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.PathValue("id")
-	cliente, err := db.ExistsClienteById(id)
-	if cliente == nil {
-		http.Error(w, "Cliente não encontrado", http.StatusNotFound)
-		return
-	}
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	transacao := db.Transacao{
+		ClienteId:   uint8(id),
+		Valor:       request.Valor,
+		Tipo:        request.Tipo,
+		Descricao:   request.Descricao,
+		RealizadaEm: time.Now(),
+	}
 
-	if request.Tipo == "c" {
-		cliente.Saldo += request.Valor
-	} else {
-		cliente.Saldo -= request.Valor
-
-		limiteIndisponivel := cliente.Saldo < -cliente.Limite
-		if limiteIndisponivel {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+	cliente, err := db.CreateTransacao(context.Background(), &transacao)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+		log.Printf("Error creating transaction: %v", err)
 	}
 
-	err = db.CreateTransacao(id, cliente.Saldo, request.Valor, request.Tipo, request.Descricao)
-
-	response := TransacaoResponse{
-		Saldo:  cliente.Saldo,
-		Limite: cliente.Limite,
-	}
+	response := TransacaoResponse{Saldo: cliente.Saldo, Limite: cliente.Limite}
 
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

@@ -16,24 +16,24 @@
 --);
 --
 
-create table if not exists  cliente (
-    id integer not null,
+create unlogged table if not exists  cliente (
+    id serial integer not null,
     limite integer not null,
     saldo integer not null,
     primary key (id)
 );
-create table if not exists transacao (
-    id integer not null,
-    descricao varchar(255) not null,
+create unlogged table if not exists transacao (
+    id serial integer not null,
+    descricao varchar(10) not null,
     realizada_em timestamp(6) not null,
     tipo char(1) not null,
     valor integer not null,
     cliente_id integer,
     primary key (id)
 );
-create index if not exists REALIZADA_EM_INDEX
-   on transacao (realizada_em desc);
-create sequence if not exists transacao_seq start with 1 increment by 50;
+create index if not exists CLIENTE_REALIZADA_EM_INDEX
+   on transacao (cliente_id, realizada_em desc);
+-- create sequence if not exists transacao_seq start with 1 increment by 50;
 alter table if exists transacao
    add constraint FK6cqdtt28hwwinbxxayub0wftw
    foreign key (cliente_id)
