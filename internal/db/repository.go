@@ -94,8 +94,8 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 
 	// if tipo == 'd' AND saldo + limite < valor
 	err = tx.QueryRow(ctx,
-		"SELECT limite, saldo FROM cliente WHERE id = $1 FOR UPDATE", transacao.ClienteId,
-	).Scan(&cliente.Limite, &cliente.Saldo)
+		"SELECT id, limite, saldo FROM cliente WHERE id = $1 FOR UPDATE", transacao.ClienteId,
+	).Scan(&cliente.Id, &cliente.Limite, &cliente.Saldo)
 	if err != nil {
 		return cliente, err
 	}
@@ -110,7 +110,7 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 	}
 
 	batch := &pgx.Batch{}
-	batch.Queue("UPDATE cliente SET saldo = $1 WHERE id = $2", cliente.Saldo, transacao.ClienteId)
+	batch.Queue("UPDATE cliente SET saldo = $1 WHERE id = $2", cliente.Saldo, cliente.Id)
 	batch.Queue(`INSERT INTO transacao (cliente_id, valor, tipo, descricao, realizada_em)`+
 		` VALUES ($1, $2, $3, $4, $5)`,
 		transacao.ClienteId, transacao.Valor, transacao.Tipo, transacao.Descricao, transacao.RealizadaEm,
