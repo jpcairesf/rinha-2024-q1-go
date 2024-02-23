@@ -64,7 +64,6 @@ func init() {
 	}
 
 	db, err = pgxpool.NewWithConfig(context.Background(), cfg)
-	defer db.Close()
 	testConnection()
 }
 
@@ -96,11 +95,11 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 	// if tipo == 'd' AND saldo + limite < valor
 	err = tx.QueryRow(ctx,
 		"SELECT limite, saldo FROM cliente WHERE id = $1 FOR UPDATE", transacao.ClienteId,
-	).Scan(&cliente.Id, &cliente.Limite, &cliente.Saldo)
+	).Scan(&cliente.Limite, &cliente.Saldo)
 	if err != nil {
 		return cliente, err
 	}
-
+	fmt.Println(cliente)
 	if transacao.Tipo == "c" {
 		cliente.Saldo += transacao.Valor
 	} else {
@@ -111,11 +110,12 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 	}
 
 	batch := &pgx.Batch{}
-	batch.Queue("UPDATE cliente SET saldo = $1 WHERE id = $2", cliente.Saldo, cliente.Id)
-	batch.Queue(`INSERT INTO transacao (cliente_id, valor, tipo, descricao, relizada_em)`+
+	batch.Queue("UPDATE cliente SET saldo = $1 WHERE id = $2", cliente.Saldo, transacao.ClienteId)
+	batch.Queue(`INSERT INTO transacao (cliente_id, valor, tipo, descricao, realizada_em)`+
 		` VALUES ($1, $2, $3, $4, $5)`,
 		transacao.ClienteId, transacao.Valor, transacao.Tipo, transacao.Descricao, transacao.RealizadaEm,
 	)
+	fmt.Println(cliente)
 
 	result := tx.SendBatch(ctx, batch)
 	if err := result.Close(); err != nil {
@@ -124,11 +124,6 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 	err = tx.Commit(context.Background())
 	if err != nil {
 		return Cliente{}, err
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		log.Printf("Panic commiting the transaction: %v", err)
 	}
 
 	return cliente, nil
@@ -148,7 +143,7 @@ func GetTop10TransacaoOrderByRealizadaEm(ctx context.Context, id uint8) (Extrato
 			` FROM transacao`+
 			` WHERE cliente_id = $1`+
 			` ORDER BY realizada_em DESC`+
-			` LIMIT 10`)
+			` LIMIT 10`, id)
 	if err != nil {
 		return Extrato{}, err
 	}

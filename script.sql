@@ -17,19 +17,17 @@
 --
 
 create unlogged table if not exists  cliente (
-    id serial integer not null,
+    id serial primary key not null,
     limite integer not null,
-    saldo integer not null,
-    primary key (id)
+    saldo integer not null
 );
 create unlogged table if not exists transacao (
-    id serial integer not null,
+    id serial primary key not null,
     descricao varchar(10) not null,
     realizada_em timestamp(6) not null,
     tipo char(1) not null,
     valor integer not null,
-    cliente_id integer,
-    primary key (id)
+    cliente_id integer
 );
 create index if not exists CLIENTE_REALIZADA_EM_INDEX
    on transacao (cliente_id, realizada_em desc);
