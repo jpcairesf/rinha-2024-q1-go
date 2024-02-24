@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/jackc/pgx/v5"
-	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -63,7 +62,10 @@ func PostTransacao(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		log.Printf("Error creating transaction: %v", err)
+		if errors.Is(err, db.ErrLimiteInsuficiente) {
+			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
+		}
 	}
 
 	response := TransacaoResponse{Saldo: cliente.Saldo, Limite: cliente.Limite}
