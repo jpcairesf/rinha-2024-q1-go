@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,9 +16,9 @@ import (
 )
 
 type TransacaoRequest struct {
-	Valor     int64  `json:"valor"`
-	Tipo      string `json:"tipo"`
-	Descricao string `json:"descricao"`
+	Valor     float64 `json:"valor"`
+	Tipo      string  `json:"tipo"`
+	Descricao string  `json:"descricao"`
 }
 
 type TransacaoResponse struct {
@@ -26,20 +27,23 @@ type TransacaoResponse struct {
 }
 
 func (t *TransacaoRequest) isNotValid() bool {
-	tipoValido := t.Tipo != "c" && t.Tipo != "d"
-	descricaoValida := utf8.RuneCountInString(t.Descricao) == 0 || utf8.RuneCountInString(t.Descricao) > 10
-	valorValido := t.Valor >= 0
+	tipoValido := t.Tipo == "c" || t.Tipo == "d"
+	descricaoValida := utf8.RuneCountInString(t.Descricao) > 0 && utf8.RuneCountInString(t.Descricao) <= 10
+	valorValido := t.Valor >= 0 && t.Valor == math.Floor(t.Valor)
 	return !(tipoValido && descricaoValida && valorValido)
 }
 
 func PostTransacao(w http.ResponseWriter, r *http.Request) {
 	var request TransacaoRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil || request.isNotValid() {
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
-
+	if request.isNotValid() {
+		http.Error(w, "Validation failed", http.StatusUnprocessableEntity)
+		return
+	}
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -47,7 +51,7 @@ func PostTransacao(w http.ResponseWriter, r *http.Request) {
 	}
 	transacao := db.Transacao{
 		ClienteId:   uint8(id),
-		Valor:       request.Valor,
+		Valor:       int64(request.Valor),
 		Tipo:        request.Tipo,
 		Descricao:   request.Descricao,
 		RealizadaEm: time.Now(),
