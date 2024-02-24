@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	host     = "localhost"
+	host     = "postgres"
 	user     = "admin"
 	password = "admin"
 	dbname   = "rinha"
