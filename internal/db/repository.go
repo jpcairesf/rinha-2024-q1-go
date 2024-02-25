@@ -59,7 +59,6 @@ type TransacaoExtrato struct {
 func init() {
 	conn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname)
 	cfg, err := pgxpool.ParseConfig(conn)
-	cfg.MaxConns = 15
 	if err != nil {
 		panic(err)
 	}

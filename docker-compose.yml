@@ -18,11 +18,11 @@ services:
       retries: 5
     ports:
       - "5432:5432"
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.7"
-#          memory: "300MB"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.58"
+          memory: "390MB"
 
   rinha1:
    container_name: rinhago1
@@ -37,12 +37,12 @@ services:
    depends_on:
      postgres:
        condition: service_healthy
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.35"
-#          memory: "120MB"
-#
+   deploy:
+     resources:
+       limits:
+         cpus: "0.3"
+         memory: "70MB"
+
   rinha2:
    container_name: rinhago2
    hostname: rinha2
@@ -56,12 +56,11 @@ services:
    depends_on:
      postgres:
        condition: service_healthy
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.35"
-
-#          memory: "120MB"
+   deploy:
+     resources:
+       limits:
+         cpus: "0.3"
+         memory: "70MB"
 
   nginx:
     image: nginx:1.25.3-alpine
@@ -73,8 +72,8 @@ services:
       - rinha2
     ports:
       - "9999:9999"
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.1"
-#          memory: "10MB"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.22"
+          memory: "20MB"
