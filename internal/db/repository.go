@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	host     = "postgres"
-	user     = "admin"
-	password = "admin"
+	host     = "localhost"
+	user     = "rinha"
+	password = "rinha"
 	dbname   = "rinha"
 )
 
@@ -59,6 +59,7 @@ type TransacaoExtrato struct {
 func init() {
 	conn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname)
 	cfg, err := pgxpool.ParseConfig(conn)
+	cfg.MaxConns = 15
 	if err != nil {
 		panic(err)
 	}
@@ -92,14 +93,13 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 		}
 	}()
 
-	// if tipo == 'd' AND saldo + limite < valor
 	err = tx.QueryRow(ctx,
 		"SELECT id, limite, saldo FROM cliente WHERE id = $1 FOR UPDATE", transacao.ClienteId,
 	).Scan(&cliente.Id, &cliente.Limite, &cliente.Saldo)
 	if err != nil {
 		return cliente, err
 	}
-	fmt.Println(cliente)
+
 	if transacao.Tipo == "c" {
 		cliente.Saldo += transacao.Valor
 	} else {
@@ -115,7 +115,6 @@ func CreateTransacao(ctx context.Context, transacao *Transacao) (Cliente, error)
 		` VALUES ($1, $2, $3, $4, $5)`,
 		transacao.ClienteId, transacao.Valor, transacao.Tipo, transacao.Descricao, transacao.RealizadaEm,
 	)
-	fmt.Println(cliente)
 
 	result := tx.SendBatch(ctx, batch)
 	if err := result.Close(); err != nil {

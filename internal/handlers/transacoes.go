@@ -5,13 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/jackc/pgx/v5"
-	"math"
+	"github.com/jpcairesf/rinha-2024-q1-go/internal/db"
 	"net/http"
 	"strconv"
 	"time"
-	"unicode/utf8"
-
-	"github.com/jpcairesf/rinha-2024-q1-go/internal/db"
 )
 
 type TransacaoRequest struct {
@@ -27,8 +24,8 @@ type TransacaoResponse struct {
 
 func (t *TransacaoRequest) isNotValid() bool {
 	tipoValido := t.Tipo == "c" || t.Tipo == "d"
-	descricaoValida := utf8.RuneCountInString(t.Descricao) > 0 && utf8.RuneCountInString(t.Descricao) <= 10
-	valorValido := t.Valor >= 0 && t.Valor == math.Floor(t.Valor)
+	descricaoValida := len(t.Descricao) > 0 && len(t.Descricao) <= 10
+	valorValido := t.Valor >= 0 && t.Valor == float64(int64(t.Valor))
 	return !(tipoValido && descricaoValida && valorValido)
 }
 
