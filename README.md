@@ -1,5 +1,6 @@
 ## Solution for a Brazilian Challenge called Rinha de Backend - 2024/Q1
 A payments API challenge validated by Gatling with concurrent operations and a 500 requests/s peak.
+You can find more information about the challenge [here](https://github.com/zanfranceschi/rinha-de-backend-2024-q1).
 
 ### Stack
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
