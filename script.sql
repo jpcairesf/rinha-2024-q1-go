@@ -1,21 +1,3 @@
--- Coloque scripts iniciais aqui
-
---CREATE TABLE IF NOT EXISTS CLIENTE (
---    CLIENTE_ID INT PRIMARY KEY,
---    SALDO INT NOT NULL,
---    LIMITE INT NOT NULL
---);
---
---CREATE TABLE IF NOT EXISTS TRANSACAO (
---    TRANSACAO_ID INT PRIMARY KEY,
---    CLIENTE_ID INT NOT NULL REFERENCES CLIENTE(CLIENTE_ID),
---    TIPO CHARACTER(1) NOT NULL,
---    VALOR INT NOT NULL,
---    DESCRICAO VARCHAR(10) NOT NULL,
---    REALIZADA_EM TIMESTAMP NOT NULL
---);
---
-
 create unlogged table if not exists  cliente (
     id serial primary key not null,
     limite integer not null,
@@ -31,7 +13,6 @@ create unlogged table if not exists transacao (
 );
 create index if not exists CLIENTE_REALIZADA_EM_INDEX
    on transacao (cliente_id, realizada_em desc);
--- create sequence if not exists transacao_seq start with 1 increment by 50;
 alter table if exists transacao
    add constraint FK6cqdtt28hwwinbxxayub0wftw
    foreign key (cliente_id)
