@@ -2,8 +2,8 @@
 A payments API challenge validated by Gatling with concurrent operations and a 500 requests/s peak.
 
 ### Stack
-![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 
 ### How to run
@@ -25,4 +25,4 @@ Inside the simulation project folder, run the containers and the Gatling simulat
 ### Results
 Test results will be generated in the simulation project `rinha-de-backend-2024-q1/load-test/user-files/results`. Open the index.html file.
 
-![image](https://github.com/jpcairesf/rinha-2024-q1-go/results.png)
+![image](https://github.com/jpcairesf/rinha-2024-q1-go/blob/master/results.png)
