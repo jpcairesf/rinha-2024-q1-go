@@ -2,23 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/jpcairesf/rinha-2024-q1-go/internal"
+	"net/http"
+	"os"
+
+	"github.com/jpcairesf/rinha-2024-q1-go/internal/handlers"
 )
 
 func main() {
-	router := gin.Default()
-	fmt.Println("Rinha is ready to Go")
+	fmt.Println("Rinha is now running...")
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /clientes/{id}/transacoes", handlers.PostTransacao)
+	mux.HandleFunc("GET /clientes/{id}/extrato", handlers.GetExtrato)
 
-	router.GET("/health", func(ctx *gin.Context) {
-		ctx.Writer.Write([]byte("Rinha is running..."))
-	})
-
-	clientes := router.Group("/clientes/:id")
-	{
-		clientes.GET("/extrato", internal.GetExtrato)
-		clientes.POST("/transacoes", internal.PostTransacao)
+	err := http.ListenAndServe(":"+os.Getenv("RINHA_PORT"), mux)
+	if err != nil {
+		return
 	}
-
-	router.Run("8080")
 }
