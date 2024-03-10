@@ -13,15 +13,8 @@ Pre-requisites:
 - Docker
 - docker-compose
 
-Clone both repositories using `git clone`:
-
-- Go solution: `https://github.com/jpcairesf/rinha-2024-q1-go`
-- Simulation project: `https://github.com/zanfranceschi/rinha-de-backend-2024-q1`
-
-Enter in the simulation project folder `cd rinha-de-backend-2024-q1` and edit the file `executar-teste-local.sh` (.ps1 for power shell) to properly use your Gatling installation directory.
-
-Inside the simulation project folder, run the containers and the Gatling simulation using
-`docker-compose -f ./../rinha-2024-q1-go/docker-compose.yml up -d && sh executar-teste-local.sh`
+1. Enter in the simulation project folder and edit the file `executar-teste-local.sh` (.ps1 for power shell) to properly use your Gatling installation directory.
+2. Run the script `sh executar-teste-local.sh`.
 
 ### Constraints
 Some constraints were applied to guarantee a fair and more competitive scenario to the challenge.
