@@ -9,8 +9,7 @@ GATLING_WORKSPACE="$(pwd)/load-test/user-files"
 
 # Clean possible daemon conflicts and run the containers
 runDockerCompose() {
-	docker container prune -f &&
-		docker-compose down --volumes &&
+	docker-compose down --volumes &&
 		docker-compose up -d
 }
 
